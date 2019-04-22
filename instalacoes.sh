@@ -1,7 +1,7 @@
 #!/bin/bash
 ############################################################
 # Script para instalação dos frameworks de desenvolvimento #
-# - ROS lunar (com gazebo7)				   #
+# - ROS kinetic (com gazebo7)				   #
 # - MAVROS						   #
 # - Firmware PX4					   #
 # - Dependências (pip, git, pandas - do script common_deps)#
@@ -61,7 +61,8 @@ fi
 echo "Installing jMAVSim simulator dependencies"
 sudo apt-get install ant openjdk-8-jdk openjdk-8-jre -y
 
-# Clone PX4/Firmware
+# Clone PX4/Firmware v1.8.2
+
 clone_dir=~/src
 echo "Cloning PX4 to: $clone_dir."
 if [ -d "$clone_dir" ]
@@ -70,28 +71,29 @@ then
 else
     mkdir -p $clone_dir
     cd $clone_dir
-    git clone https://github.com/PX4/Firmware.git
+    git clone https://github.com/PX4/Firmware.git --branch 1.8.2
 fi
 
 
-# Installing ROS Lunar
+# Installing ROS Kinetic
 # Setup Keys
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update
 # Get ROS + Gazebo
-sudo apt-get install ros-lunar-desktop-full -y
+sudo apt-get install ros-kinetic-desktop-full -y
 # Initialize rosdep
 sudo rosdep init
 rosdep update
 # Setup environment
 ## Setup environment variables
-rossource="source /opt/ros/lunar/setup.bash"
+rossource="source /opt/ros/kinetic/setup.bash"
 if grep -Fxq "$rossource" ~/.bashrc; then echo ROS setup.bash already in .bashrc;
 else echo "$rossource" >> ~/.bashrc; fi
 eval $rossource
 
-sudo apt-get install ros-lunar-catkin-pip
+sudo apt-get install ros-kinetic-catkin python-catkin-tools 
+sudo apt-get install ros-kinetic-catkin-pip
 
 # Gets catkin_ws from github
 cd ~/
@@ -109,7 +111,7 @@ fi
 echo "HEEEEEEEEEEEEEEEEEEEEEEEY YOOOOOU!!"
 echo "Now use the same text editor to"
 echo "search in the directory catkin_ws for ALL occurences of the word 'kinetic'"
-echo "Replace all of them by 'lunar'"
+echo "Replace all of them by 'kinetic'"
 echo "After this procedure, type [y + ENTER]"
 read ans
 if [ "$ans" = "y" ] || [ "$ans" = "Y" ]; then
@@ -130,7 +132,7 @@ sudo apt install python-rosinstall-generator
 ## Initialise wstool
 wstool init ~/catkin_ws/src
 ## Installing MAVLink
-rosinstall_generator --rosdistro lunar mavlink | tee /tmp/mavros.rosinstall
+rosinstall_generator --rosdistro kinetic mavlink | tee /tmp/mavros.rosinstall
 ## Installing MAVROS
 rosinstall_generator --upstream mavros | tee -a /tmp/mavros.rosinstall
 
@@ -144,7 +146,7 @@ wstool update -t src -j4
 rosdep install --from-paths src --ignore-src -y
 
 ## MAVROS binary installation
-sudo apt install ros-lunar-mavros ros-lunar-mavros-extras ros-lunar-mavros-msgs
+sudo apt install ros-kinetic-mavros ros-kinetic-mavros-extras ros-kinetic-mavros-msgs
 
 
 ## Installing Geographiclib datasets
@@ -175,10 +177,29 @@ else
 	echo "OS not supported! Check GeographicLib page for supported OS and lib versions." 1>&2
 fi
 
+echo "Would you like to install Jupyter Notebook? [y]"
+read ans
+echo "I'll assume you want to use Jupyter with python3. I don't give a shit if you don't"
+sleep 1
+if [ "$ans" = "y" ]; then
+        echo "Good Option"
+	sleep 1
+	echo "I'll also install pandas and numpy"
+	pip3 install pandas
+	pip3 install numpy
+	python3 -m pip install --upgrade pip
+	python3 -m pip install jupyter
+	
+fi
+
+
 echo "Installation completed!"
-echo "Type [r + ENTER] to reboot"
+echo "Type [r + ENTER] to REBOOT YOUR COMPUTER"
 read ans
 if [ "$ans" = "r" ]; then
         echo "Good boy"
+	sleep 1
 	reboot
 fi
+
+
