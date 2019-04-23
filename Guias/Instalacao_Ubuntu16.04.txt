@@ -1,0 +1,19 @@
+﻿Instalação do Ubuntu 16.04 em Dual Boot com Windows
+
+
+1. Descubra se seu processador é de 32 ou 64 bits
+   a. Clique com o botão direito no botão do Windows, e em Sistema. No campo “TIpo de sistema” deve estar o tipo do processador
+**Os passos de 2 a 4 podem ser pulados caso você já tenha um pendrive bootável com o Ubuntu 16.04**
+2. Baixe o Rufus em https://rufus.ie/ (não precisa de instalação)
+3. Baixe o arquivo ISO do Ubuntu 16.04 em http://releases.ubuntu.com/16.04/, conforme seu tipo de processador
+4. Insira seu pendrive. Abrindo o Rufus, selecione o arquivo ISO na caixa “Boot selection” (e selecione seu pendrive na caixa acima caso ele não seja selecionado automaticamente) e clique Start. Quando o Rufus terminar, seu pendrive já está bootável.
+5. Fazer partição no HDD
+   a. Entre na linha de comando (Aperte a Tecla Windows + R, e então digite cmd e dê enter) e digite diskmgmt.msc
+   b. Na tela que abrir, clique com o botão direito na partição C: e clique em Shrink Volume.
+   c. Selecione o quanto de espaço você quer alocar para o Ubuntu (que corresponde a quanto você vai diminuir C:)
+6. Entrar na BIOS e bootar do pendrive
+7. Selecionar Install Ubuntu
+8. Na tela de instalação, selecione sua língua. Se tiver conexão com Wifi boa, pode escolher fazer as atualizações enquanto instala nas telas seguintes
+9. Selecione instalar junto com o Windows Boot Manager (ou alguma alternativa similar a instalar junto ao windows). NÃO selecione a opção de limpar o disco, isso apaga o Windows e todos os seus arquivos
+10. Selecione sua localização, teclado, informações pessoais/de log-in, e inicie a instalação
+11. Uma vez que a instalação estiver concluída, reinicie o computador e o procedimento estará concluído
