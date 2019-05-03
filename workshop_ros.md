@@ -141,7 +141,11 @@ A partir disso, cada _package_ (exceto os padrões) tem sua documentação e ins
 * uma pasta `msg`  para definir e criar mensagens específicas do _package_
 * uma pasta `srv` para definir Services específicos do _package_
 * uma pasta  `scripts` para executáveis
+_PS. o comando `catkin_create_pkg` cria isso tudo sozinho pra vc_
 Na dúvida, `rospack help` 
+
+**Esses packages são organizados em um catkin workspace**, que nos permite trabalhar com packages ROS e compilar códigos em C++ facilmente.
+
 - Na pratica
 	-catkin
 
