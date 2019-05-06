@@ -2,15 +2,13 @@
 
 ## Antes de tudo...
 
-#### Digamos que a gente quer construir um software para um drone
+#### Digamos que a gente quer construir um software para um drone autônomo
 
 Queremos um drone **autônomo** com software **robusto**, algorítmos de estimação de posição, visão computacional, máquinas de estados e softwares de segurança...
 
-### Quem aqui já implementou um algorítmo de Calibração de Câmera??
-
 ### Isso requer um conhecimento muito específico 
 
-Um projeto complexo como esse é **muito** difícil para ser implementado "do zero" por qualquer indivíduo sozinho, ou até mesmo um laboratório ou instituição
+Um projeto complexo como esse é **muito** difícil para ser implementado "do zero" por qualquer indivíduo sozinho, ou até mesmo um laboratório ou instituição.
 
 > Palavras da organização ROS
 
@@ -34,21 +32,15 @@ Mas pera, o que é um _framework_?
 
 ![https://docs.google.com/drawings/d/1N3skvSyzZj_dWzCqwEfsNd3gtwTNGFDwpm_TM__Vk2s/edit](https://docs.google.com/drawings/d/1N3skvSyzZj_dWzCqwEfsNd3gtwTNGFDwpm_TM__Vk2s/pub?w=2312&h=1050)
 
-
-
-### @Bixo2019 - "Nossa, @Veteranos, vcs usam tudo isso??"
-
-### @Veteranos - "Nem fo dendo"
+## Como a Skyrats usa o ROS?
 
 Usamos o ROS conforme as necessidades do projeto em que estamos trabalhando
-
-## Skyrats <-- ROS - alguns ROS _packages_ que usamos:
 
 * MAVROS
 * CvBridge
 * Gazebo
 * bebop_driver, bebop_autonomy, bebop_msgs, bebop tools, _et cetera_
-* Whatever framework we  eventually need
+* _Whatever framework we  eventually need_
 
 ## Onde conseguir o tal ROS??
 
@@ -58,11 +50,11 @@ E, para ter acesso a todos os packages ROS, [Clique aqui](<https://index.ros.org
 
 A partir disso, cada _package_ (exceto os padrões) tem sua documentação e instalação separadas do ROS, em suas próprias plataformas.
 
-# Como usar o tal ROS??
+# Como funciona o tal ROS??
 
 ## Grafos de Comunicação
 
-### Nodes
+### ROS Nodes
 
 > Processos computacionais - Programas que escrevemos.
 >
@@ -92,42 +84,64 @@ A partir disso, cada _package_ (exceto os padrões) tem sua documentação e ins
   uint8 quality
   uint32 time_delta_distance_us
   float32 distance`
-
+  
+  
   
 
-### Topics
-
+### ROS Topics
+![http://ros.org/images/wiki/ROS_basic_concepts.png](http://ros.org/images/wiki/ROS_basic_concepts.png)
 >ROS ≈ Fórum
 >
 >Topicos são um **nome** para identificar o conteúdo da mensagem
 >
 >Os **Nodes** podem obter os dados de um tópico se inscrevendo nele - **Nodes Subscriber** - ou mudar os dados desse tópico publicando nele - **Nodes Publishers**.
 
-#### 	Como obter as informações:
+
+
+#### 	Como obter:
 
 * `rostopic list` - lista todos os tópicos ativos 
 * `rostopic info [nome do tópico]` -  te diz
   * O tipo de mensagem publicada
   * Os publisher e subscribers
 * `rosmsg show [tipo de mensagem]` - passa todos os parametros da mensagem
+* `rostopic echo` - te mostra tudo que está sendo publicado nesse tópico
+* Mostrar integracao_controle.py com interface
 
-### Services
+#### Como publicar em Tópicos pelo Terminal
 
-> Modelo mais apropriado pra "request/reply interactions" - comunicação direta entre 2 nodes - que não são possiveis com a comunicação unilateral dos tópicos. Definido por **duas** estruturas de mensagens ( uma pro _request e outra pro reply_).
+Durante a execução do ROS, usar o comando
+
+`rostopic pub [nome do tópico] [mensagem]`
+
+
+
+### ROS Services
+
+> Modelo mais apropriado pra "request/reply interactions" - comunicação direta entre nodes - que não são possiveis com a comunicação unilateral dos tópicos. Definido por **duas** estruturas de mensagens ( uma pro _request e outra pro reply_).
 
 * Ex: /mavros/cmd/arming
 
-  #### Como obter as informações:
+  #### Como obter:
 
-* `rosservice list` - lista todos os servers ativos 
+* `rosservice list` - lista todos os servers ativos.
 
 * `rosserver info [nome do tópico]` -  te diz
 
   - O node que **recebe** o _request_
   - O tipo de mensagem de _request_
   - Os argumentos da mensagem
+  
+* Mostrar `rqt_graph` com alguma _state machine_
 
-### ![http://ros.org/images/wiki/ROS_basic_concepts.png](http://ros.org/images/wiki/ROS_basic_concepts.png)
+* Mostrar `rqt_plot`
+
+#### Como chamar Services pelo Terminal
+Durante a execução do ROS, usar o comando
+
+`rosservice call [nome do service] [argumentos]`
+
+  
 
 ### Packages
 > Estrutura de organização dos nodes - 1 package pode ter diversos nodes 
@@ -146,10 +160,63 @@ Na dúvida, `rospack help`
 
 **Esses packages são organizados em um catkin workspace**, que nos permite trabalhar com packages ROS e compilar códigos em C++ facilmente.
 
-- Na pratica
-	-catkin
+### Exemplo: Entendendo um Package - Turtlesim
 
+`opt/ros/[sua versao]/share/turtlesim`
 
-* Ponte ROS-Drone
+`rosrun turtlesim turtlesim_node`
 
-**Frameworks do ROS...**
+### MAVROS - Decolando um Drone
+
+`import rospy`
+
+`import mavros_msgs`
+
+**Criando os Publishers**
+
+Para isso, precisamos especificar:
+
+* O tópico a ser publicado
+
+* O tipo de mensagem a ser publicada
+
+* O  queue_size
+
+  * Mensagens a serem publicadas são guardadas numa lista (vc pode publicar em frequências diferentes do seu rospy.Rate). O queue_size estabelece o número máximo de mensagens a serem guardadas antes de serem descartadas.
+* _queue_size_ pequeno - o último valor interessa mais/alta taxa de atualização
+  * *queue_size* grande - previne perda de dados (ex: botão)
+  
+  
+
+`pose_sub = Publisher('/mavros/setpoint_position/pose',PoseStamped, queue_size=10)`
+
+Durante a execução do programa, publicaremos as mensagens passando um objeto - neste exemplo, um objeto do tipo PoseStamped - para o publisher.
+
+`pose_sub.publish(goal_position)`
+
+**Criando os Subscribers**
+
+Para isso, precisamos especificar, além dos parâmetros da criação dos publishers, uma **função de _callback_**, que deve ser definida **antes** do subscriber. Esta, será responsável pelo **tratamento dos dados** recebidos pelo subscribers.
+
+Ex:	`statesub = rospy.Subscriber('/mavros/state', State, state_callback)`
+
+Onde a função armado_callback deve ser definida com um parâmetro - que será nesse caso, um objeto State -.
+
+`def state_callback(state_data):`
+
+Dentro da função de _callback_, podemos acessar atributos do `state_data`, como
+
+`state_data.mode`
+
+**Definindo os Services necessários**
+
+Precisaremos de 2 services para decolar o drone
+
+* Server para armar o drone
+* Server para mudar o modo de voo
+
+`arm = rospy.ServiceProxy('/mavros/cmd/arming', mavros_msgs.srv.CommandBool)`
+
+Durante a execução do programa, esse service vai ser chamado de modo semelhante a uma função para a qual - neste exemplo - passamos um parametro do tipo mavros_msgs.srv.CommandBool
+
+`arm(True)`
